@@ -4,4 +4,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Azure.AspNetCore.DataProtection.Keys" Version="1.0.0-preview.1" />
+    <PackageReference Include="Azure.Identity" Version="1.2.0-preview.1" />
+  </ItemGroup>
+
 </Project>

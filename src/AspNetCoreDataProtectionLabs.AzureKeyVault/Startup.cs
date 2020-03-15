@@ -1,5 +1,9 @@
 #region Imports
+using AspNetCoreDataProtectionLabs.AzureKeyVault.Configuration;
+using Azure.Core;
+using Azure.Identity;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +23,14 @@ namespace AspNetCoreDataProtectionLabs.AzureKeyVault
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var azureKeyVaultConfig = Configuration.GetSection("AzureKeyVault").Get<AzureKeyVaultConfig>();
+            var keyIdentifier = azureKeyVaultConfig.KeyVaultKeyId;
+            var tokenCredential = GetTokenCredential(azureKeyVaultConfig);
+
+            // Key Vault requires the user/app to have permissions on Keys: 1. Read 2. Wrap key 3.Unwrap key
+            services.AddDataProtection()
+                .ProtectKeysWithAzureKeyVault(keyIdentifier, tokenCredential);
+
             services.AddControllers();
         }
 
@@ -36,5 +48,21 @@ namespace AspNetCoreDataProtectionLabs.AzureKeyVault
                 endpoints.MapControllers();
             });
         }
+
+        #region Utilities
+
+        private TokenCredential GetTokenCredential(AzureKeyVaultConfig config)
+        {
+            var credentialOptions = new DefaultAzureCredentialOptions();
+
+            if (config.SharedTokenCacheTenantId != null)
+            {
+                credentialOptions.SharedTokenCacheTenantId = config.SharedTokenCacheTenantId;
+            }
+
+            return new DefaultAzureCredential(credentialOptions);
+        }
+
+        #endregion
     }
 }
