@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using AspNetCoreDataProtectionLabs.AzureBlobStorage.Extensions;
+
 #endregion
 
 namespace AspNetCoreDataProtectionLabs.AzureBlobStorage
@@ -32,6 +34,8 @@ namespace AspNetCoreDataProtectionLabs.AzureBlobStorage
             services.AddDataProtection()
                 .PersistKeysToAzureBlobStorage(blobClient);
 
+            services.AddCustomSwagger();
+
             services.AddControllers();
         }
 
@@ -43,6 +47,8 @@ namespace AspNetCoreDataProtectionLabs.AzureBlobStorage
             }
 
             app.UseRouting();
+
+            app.UseCustomSwagger();
 
             app.UseEndpoints(endpoints =>
             {
