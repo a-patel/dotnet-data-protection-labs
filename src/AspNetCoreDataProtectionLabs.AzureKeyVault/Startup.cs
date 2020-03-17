@@ -1,5 +1,6 @@
 #region Imports
 using AspNetCoreDataProtectionLabs.AzureKeyVault.Configuration;
+using AspNetCoreDataProtectionLabs.AzureKeyVault.Extensions;
 using Azure.Core;
 using Azure.Identity;
 using Microsoft.AspNetCore.Builder;
@@ -27,9 +28,14 @@ namespace AspNetCoreDataProtectionLabs.AzureKeyVault
             var keyIdentifier = azureKeyVaultConfig.KeyVaultKeyId;
             var tokenCredential = GetTokenCredential(azureKeyVaultConfig);
 
+            // Important NOTE: Key Vault is only for protection, one more layer of extra security
+            // Key Vault is not used to PersistKeys 
+            // Need to add other storage like Blob storage, Redis etc. to PersistKeys
             // Key Vault requires the user/app to have permissions on Keys: 1. Read 2. Wrap key 3.Unwrap key
             services.AddDataProtection()
                 .ProtectKeysWithAzureKeyVault(keyIdentifier, tokenCredential);
+
+            services.AddCustomSwagger();
 
             services.AddControllers();
         }
@@ -42,6 +48,8 @@ namespace AspNetCoreDataProtectionLabs.AzureKeyVault
             }
 
             app.UseRouting();
+
+            app.UseCustomSwagger();
 
             app.UseEndpoints(endpoints =>
             {
@@ -66,3 +74,11 @@ namespace AspNetCoreDataProtectionLabs.AzureKeyVault
         #endregion
     }
 }
+
+
+
+#region Reference
+/*
+https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview
+ */
+#endregion
